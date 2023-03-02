@@ -9,8 +9,13 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
+interface gptMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 interface ChatHistoryProps {
-  chatHistory: string[];
+  chatHistory: gptMessage[];
 }
 
 const ChatHistory: React.FC<ChatHistoryProps> = ({ chatHistory }) => {
@@ -24,12 +29,12 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatHistory }) => {
 };
 
 interface ChatMessageProps {
-  message: string;
+  message: gptMessage;
   index: number;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
-  const isUser = message.startsWith("User:");
+  const isUser = message.role === "user";
   const bg = useColorModeValue("gray.100", "gray.800");
   const color = useColorModeValue("black", "white");
   const alignSelf = isUser ? "flex-start" : "flex-end";
@@ -44,8 +49,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       marginLeft={marginLeft}
       maxWidth="80%"
     >
-      <Text fontSize="sm" color={color}>
-        {message.replace(/^(You|User):\s+/, "")}
+      <Text fontSize="sm" color={color} whiteSpace="pre-wrap">
+        {message.content}
       </Text>
     </Box>
   );
@@ -86,12 +91,20 @@ const ChatInput: React.FC<{
 };
 
 const ChatBot: React.FC = () => {
-  const [chatHistory, setChatHistory] = useState<string[]>([
-    "You: 私は旅行コンシェルジュです。旅行についての質問にお答えいたします。",
+  const [chatHistory, setChatHistory] = useState<gptMessage[]>([
+    {
+      role: "assistant",
+      content:
+        "私は旅行コンシェルジュです。旅行についてなんでも気軽にご相談ください！",
+    },
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const handleSendMessage = async (message: string) => {
-    const messageWithUser = "User: " + message;
+    const messageWithUser: gptMessage = {
+      role: "user",
+      content: message,
+    };
+
     setChatHistory((prevChatHistory) => [...prevChatHistory, messageWithUser]);
 
     try {
@@ -102,9 +115,12 @@ const ChatBot: React.FC = () => {
         body: JSON.stringify({ input: [...chatHistory, messageWithUser] }),
       });
 
-      const data = await response.json();
-      const botMessage = "You:" + data?.baseChoice?.text;
+      const botMessage = (await response.json()) as gptMessage;
 
+      // const botMessage: gptMessage = {
+      //   role: "assistant",
+      //   content: data?.baseChoice?.text,
+      // };
       if (botMessage) {
         setChatHistory((prevChatHistory) => [...prevChatHistory, botMessage]);
       }
