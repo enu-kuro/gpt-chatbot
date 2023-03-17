@@ -22,7 +22,7 @@ const AudioTranscription = () => {
     const selectedFile = event.target.files?.[0];
 
     if (selectedFile) {
-      const sizeLimit = 1 * 1024 * 1024; // 1 MB
+      const sizeLimit = 10 * 1024 * 1024; // 10 MB
 
       if (selectedFile.size > sizeLimit) {
         alert("File size exceeds 1 MB. Please choose a smaller file.");
