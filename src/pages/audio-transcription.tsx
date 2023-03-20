@@ -20,12 +20,12 @@ const AudioTranscription = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-
+    console.log(selectedFile);
     if (selectedFile) {
-      const sizeLimit = 10 * 1024 * 1024; // 10 MB
+      const sizeLimit = 100 * 1024 * 1024; // 100 MB
 
       if (selectedFile.size > sizeLimit) {
-        alert("File size exceeds 1 MB. Please choose a smaller file.");
+        alert("File size exceeds 100 MB. Please choose a smaller file.");
         return;
       }
     }
